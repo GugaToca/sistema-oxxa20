@@ -98,19 +98,25 @@ const MARKET_DATA = [
   { tag: "Economia", q: "A taxa de juros cairá na próxima reunião?", p: 0.57 }
 ];
 
+// ===== Auth modal
 let authModal, closeAuth;
+
+function goToTop() {
+  // Volta pro topo SEMPRE
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
 function requireAuth() {
   if (!authModal) return;
   authModal.hidden = false;
 }
 
-function closeAuthModal() {
-  if (!authModal) return;
-  authModal.hidden = true;
+function closeAuthModalAndBackToTop() {
+  if (authModal) authModal.hidden = true;
+  goToTop();
 }
 
-
+// ===== Render markets
 function renderMarkets(list) {
   const wrap = $("#markets");
   wrap.innerHTML = "";
@@ -139,6 +145,7 @@ function renderMarkets(list) {
     wrap.appendChild(el);
   });
 
+  // Só exige login quando clicar em YES/NO
   $$(".pair button", wrap).forEach(btn => {
     btn.addEventListener("click", ev => {
       ev.stopPropagation();
@@ -177,11 +184,27 @@ document.addEventListener("DOMContentLoaded", () => {
   authModal = document.getElementById("authModal");
   closeAuth = document.getElementById("closeAuth");
 
+  // CANCELAR: fecha modal e volta pro topo (sempre)
   if (closeAuth) {
-    closeAuth.addEventListener("click", () => {
-      authModal.hidden = true;
+    closeAuth.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      closeAuthModalAndBackToTop();
     });
   }
+
+  // (opcional) clicou fora do card = comporta como Cancelar
+  if (authModal) {
+    authModal.addEventListener("click", (ev) => {
+      if (ev.target === authModal) closeAuthModalAndBackToTop();
+    });
+  }
+
+  // (opcional) ESC = comporta como Cancelar
+  window.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape" && authModal && !authModal.hidden) {
+      closeAuthModalAndBackToTop();
+    }
+  });
 
   initTheme();
   renderMarkets(MARKET_DATA);
