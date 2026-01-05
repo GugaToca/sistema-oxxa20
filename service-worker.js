@@ -1,4 +1,4 @@
-const CACHE_NAME = "oxxa-v1";
+const CACHE_NAME = "oxxa-v2";
 const FILES_TO_CACHE = [
   "/",
   "/index.html",

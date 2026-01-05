@@ -110,32 +110,6 @@ function closeAuthModal() {
   authModal.hidden = true;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  authModal = document.getElementById("authModal");
-  closeAuth = document.getElementById("closeAuth");
-
-  if (closeAuth) {
-    closeAuth.addEventListener("click", (ev) => {
-      ev.preventDefault();
-      closeAuthModal();
-    });
-  }
-
-  // (opcional) clicar fora do card fecha também
-  if (authModal) {
-    authModal.addEventListener("click", (ev) => {
-      if (ev.target === authModal) closeAuthModal();
-    });
-  }
-
-  // (opcional) tecla ESC fecha
-  window.addEventListener("keydown", (ev) => {
-    if (ev.key === "Escape" && authModal && !authModal.hidden) {
-      closeAuthModal();
-    }
-  });
-});
-
 
 function renderMarkets(list) {
   const wrap = $("#markets");
