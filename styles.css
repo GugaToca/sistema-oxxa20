@@ -776,11 +776,10 @@ input:focus{
   z-index: 100000;
 }
 
-/* Garante que [hidden] SEMPRE esconda o modal (corrige abrir no load e Cancelar) */
+/* ✅ garante que hidden funcione SEMPRE */
 .auth-modal[hidden]{
   display: none !important;
 }
-
 
 .auth-card{
   width: min(92%, 420px);
@@ -820,6 +819,20 @@ input:focus{
   color: var(--muted);
   font-weight: 800;
   cursor: pointer;
+}
+
+/* ✅ forms do login/cadastro */
+.auth-form{
+  display: grid;
+  gap: 10px;
+  text-align: left;
+  margin-top: 10px;
+}
+.auth-form .btn{
+  width: 100%;
+}
+.auth-view[hidden]{
+  display: none !important;
 }
 
 @keyframes authIn{

@@ -98,39 +98,62 @@ const MARKET_DATA = [
   { tag: "Economia", q: "A taxa de juros cairá na próxima reunião?", p: 0.57 }
 ];
 
-// ===== Auth modal
+// ===== Auth modal + Views
 let authModal, closeAuth;
+let viewPrompt, viewLogin, viewSignup;
+let openLoginBtn, openSignupBtn;
+let goSignupFromLogin, goLoginFromSignup;
+let loginForm, signupForm;
 
 function goToTop() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-/**
- * Abre o modal SOMENTE quando o usuário clicar em YES/NO.
- */
-function requireAuth() {
+function setAuthView(which) {
+  if (!viewPrompt || !viewLogin || !viewSignup) return;
+
+  viewPrompt.hidden = which !== "prompt";
+  viewLogin.hidden  = which !== "login";
+  viewSignup.hidden = which !== "signup";
+}
+
+function openAuthModal() {
   if (!authModal) return;
   authModal.hidden = false;
 }
 
+function openAuthPrompt() {
+  openAuthModal();
+  setAuthView("prompt");
+}
+
+function openLogin() {
+  openAuthModal();
+  setAuthView("login");
+  try { history.replaceState(null, "", "#login"); } catch(e) {}
+}
+
+function openSignup() {
+  openAuthModal();
+  setAuthView("signup");
+  try { history.replaceState(null, "", "#_toggle_signup"); } catch(e) {}
+}
+
 /**
  * CANCELAR:
- * - fecha o modal
- * - volta para a página principal (topo)
- * - limpa qualquer hash (#login / #_toggle_signup etc.)
+ * - fecha modal
+ * - volta pro topo
+ * - reseta pra tela inicial (prompt)
+ * - limpa hash e volta pra #top
  */
 function closeAuthModalAndBackToTop() {
   if (authModal) authModal.hidden = true;
-
-  // volta pro topo e "pagina principal"
+  setAuthView("prompt");
   goToTop();
 
-  // garante que a URL não fique presa em #login, #_toggle_signup etc.
-  // (isso evita que pareça que não voltou pro início)
   try {
     history.replaceState(null, "", "#top");
   } catch (e) {
-    // fallback bem simples
     location.hash = "top";
   }
 }
@@ -164,13 +187,12 @@ function renderMarkets(list) {
     wrap.appendChild(el);
   });
 
-  // ✅ AQUI É A REGRA DE OURO:
-  // Login só é pedido quando clicar em YES/NO (negociar)
+  // ✅ Login só aparece ao clicar em YES/NO
   $$(".pair button", wrap).forEach(btn => {
     btn.addEventListener("click", (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
-      requireAuth();
+      openAuthPrompt(); // abre o prompt inicial, não o login direto
     });
   });
 }
@@ -205,7 +227,72 @@ document.addEventListener("DOMContentLoaded", () => {
   authModal = document.getElementById("authModal");
   closeAuth = document.getElementById("closeAuth");
 
-  // ✅ CANCELAR: fecha modal e volta pra página principal SEMPRE
+  viewPrompt = document.getElementById("authViewPrompt");
+  viewLogin  = document.getElementById("authViewLogin");
+  viewSignup = document.getElementById("authViewSignup");
+
+  openLoginBtn  = document.getElementById("openLogin");
+  openSignupBtn = document.getElementById("openSignup");
+
+  goSignupFromLogin = document.getElementById("goSignupFromLogin");
+  goLoginFromSignup = document.getElementById("goLoginFromSignup");
+
+  loginForm  = document.getElementById("loginForm");
+  signupForm = document.getElementById("signupForm");
+
+  // Garante estado inicial
+  setAuthView("prompt");
+
+  // Entrar / Criar conta (dentro do prompt)
+  if (openLoginBtn) {
+    openLoginBtn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      openLogin();
+    });
+  }
+
+  if (openSignupBtn) {
+    openSignupBtn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      openSignup();
+    });
+  }
+
+  // Troca de telas dentro do modal
+  if (goSignupFromLogin) {
+    goSignupFromLogin.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      openSignup();
+    });
+  }
+
+  if (goLoginFromSignup) {
+    goLoginFromSignup.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      openLogin();
+    });
+  }
+
+  // Submits (demo por enquanto)
+  if (loginForm) {
+    loginForm.addEventListener("submit", (ev) => {
+      ev.preventDefault();
+      const email = $("#loginEmail")?.value?.trim();
+      toast("Login", `Entrando com ${email || "sua conta"} (demo)`);
+      closeAuthModalAndBackToTop();
+    });
+  }
+
+  if (signupForm) {
+    signupForm.addEventListener("submit", (ev) => {
+      ev.preventDefault();
+      const name = $("#signupName")?.value?.trim();
+      toast("Conta criada", `Bem-vindo, ${name || "!"} (demo)`);
+      closeAuthModalAndBackToTop();
+    });
+  }
+
+  // CANCELAR: fecha modal e volta pro topo
   if (closeAuth) {
     closeAuth.addEventListener("click", (ev) => {
       ev.preventDefault();
@@ -213,14 +300,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // (opcional, mas bom) clicou fora do card = CANCELAR
+  // clicou fora do card = CANCELAR
   if (authModal) {
     authModal.addEventListener("click", (ev) => {
       if (ev.target === authModal) closeAuthModalAndBackToTop();
     });
   }
 
-  // (opcional, mas bom) ESC = CANCELAR
+  // ESC = CANCELAR
   window.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape" && authModal && !authModal.hidden) {
       closeAuthModalAndBackToTop();
@@ -230,13 +317,11 @@ document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   renderMarkets(MARKET_DATA);
 
-  // splash (mantido)
   const splash = document.getElementById("splash");
   if (splash) {
     setTimeout(() => splash.style.display = "none", 2000);
   }
 
-  // PWA (mantido)
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("service-worker.js");
   }

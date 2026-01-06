@@ -10,17 +10,15 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="logo-x.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<meta name="theme-color" content="#1824cf">
-
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1824cf">
 </head>
 
 <body>
   <div id="splash">
-  <img src="logo-x.png" alt="OXXA Logo">
-</div>
+    <img src="logo-x.png" alt="OXXA Logo">
+  </div>
 
   <!-- Background -->
   <div class="bg">
@@ -37,7 +35,7 @@
     <div class="container header__inner">
       <a class="brand" href="#top" aria-label="Ir para o topo">
         <span class="brand__mark brand__mark--img">
-        <img src="logo-x.png" alt="Logo OXXA" />
+          <img src="logo-x.png" alt="Logo OXXA" />
         </span>
         <span class="brand__name">OXXA</span>
       </a>
@@ -366,7 +364,7 @@
       <div>
         <div class="brand brand--footer">
           <span class="brand__mark brand__mark--img">
-          <img src="logo-x.png" alt="Logo OXXA">
+            <img src="logo-x.png" alt="Logo OXXA">
           </span>
 
           <span class="brand__name">OXXA</span>
@@ -382,25 +380,75 @@
     </div>
   </footer>
 
-    <!-- Login Required Modal -->
-<div class="auth-modal" id="authModal" hidden>
-  <div class="auth-card">
-    <div class="auth-icon">🔒</div>
-    <h3>Login necessário</h3>
-    <p class="muted">
-      Para negociar contratos <strong>Yes / No</strong>, você precisa estar logado.
-    </p>
+  <!-- Login Required Modal -->
+  <div class="auth-modal" id="authModal" hidden>
+    <div class="auth-card">
 
-    <div class="auth-actions">
-      <a href="#login" class="btn btn--primary">Entrar</a>
-      <a href="#_toggle_signup" class="btn btn--ghost">Criar conta</a>
+      <!-- VIEW 1: prompt inicial -->
+      <div class="auth-view" id="authViewPrompt">
+        <div class="auth-icon">🔒</div>
+        <h3>Login necessário</h3>
+        <p class="muted">
+          Para negociar contratos <strong>Yes / No</strong>, você precisa estar logado.
+        </p>
+
+        <div class="auth-actions">
+          <a href="#login" class="btn btn--primary" id="openLogin">Entrar</a>
+          <a href="#_toggle_signup" class="btn btn--ghost" id="openSignup">Criar conta</a>
+        </div>
+      </div>
+
+      <!-- VIEW 2: login -->
+      <div class="auth-view" id="authViewLogin" hidden>
+        <div class="auth-icon">👤</div>
+        <h3>Entrar</h3>
+        <p class="muted">Acesse sua conta para negociar.</p>
+
+        <form class="auth-form" id="loginForm">
+          <label class="sr" for="loginEmail">E-mail</label>
+          <input id="loginEmail" name="email" type="email" placeholder="seuemail@exemplo.com" autocomplete="email" required>
+
+          <label class="sr" for="loginPass">Senha</label>
+          <input id="loginPass" name="password" type="password" placeholder="Sua senha" autocomplete="current-password" required>
+
+          <button class="btn btn--primary" type="submit">
+            Entrar
+            <span class="btn__shine" aria-hidden="true"></span>
+          </button>
+
+          <button class="btn btn--ghost" type="button" id="goSignupFromLogin">Criar conta</button>
+        </form>
+      </div>
+
+      <!-- VIEW 3: signup -->
+      <div class="auth-view" id="authViewSignup" hidden>
+        <div class="auth-icon">✨</div>
+        <h3>Criar conta</h3>
+        <p class="muted">Crie sua conta para começar.</p>
+
+        <form class="auth-form" id="signupForm">
+          <label class="sr" for="signupName">Nome</label>
+          <input id="signupName" name="name" placeholder="Seu nome" autocomplete="name" required>
+
+          <label class="sr" for="signupEmail">E-mail</label>
+          <input id="signupEmail" name="email" type="email" placeholder="seuemail@exemplo.com" autocomplete="email" required>
+
+          <label class="sr" for="signupPass">Senha</label>
+          <input id="signupPass" name="password" type="password" placeholder="Crie uma senha" autocomplete="new-password" required>
+
+          <button class="btn btn--primary" type="submit">
+            Criar conta
+            <span class="btn__shine" aria-hidden="true"></span>
+          </button>
+
+          <button class="btn btn--ghost" type="button" id="goLoginFromSignup">Já tenho conta</button>
+        </form>
+      </div>
+
+      <button type="button" class="auth-close" id="closeAuth">Cancelar</button>
     </div>
-
-    <button type="button" class="auth-close" id="closeAuth">Cancelar</button>
-
   </div>
-</div>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
