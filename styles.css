@@ -776,6 +776,12 @@ input:focus{
   z-index: 100000;
 }
 
+/* Garante que [hidden] SEMPRE esconda o modal (corrige abrir no load e Cancelar) */
+.auth-modal[hidden]{
+  display: none !important;
+}
+
+
 .auth-card{
   width: min(92%, 420px);
   background: linear-gradient(180deg, var(--panel), rgba(255,255,255,.04));
