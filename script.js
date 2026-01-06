@@ -102,18 +102,37 @@ const MARKET_DATA = [
 let authModal, closeAuth;
 
 function goToTop() {
-  // Volta pro topo SEMPRE
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+/**
+ * Abre o modal SOMENTE quando o usuário clicar em YES/NO.
+ */
 function requireAuth() {
   if (!authModal) return;
   authModal.hidden = false;
 }
 
+/**
+ * CANCELAR:
+ * - fecha o modal
+ * - volta para a página principal (topo)
+ * - limpa qualquer hash (#login / #_toggle_signup etc.)
+ */
 function closeAuthModalAndBackToTop() {
   if (authModal) authModal.hidden = true;
+
+  // volta pro topo e "pagina principal"
   goToTop();
+
+  // garante que a URL não fique presa em #login, #_toggle_signup etc.
+  // (isso evita que pareça que não voltou pro início)
+  try {
+    history.replaceState(null, "", "#top");
+  } catch (e) {
+    // fallback bem simples
+    location.hash = "top";
+  }
 }
 
 // ===== Render markets
@@ -121,7 +140,7 @@ function renderMarkets(list) {
   const wrap = $("#markets");
   wrap.innerHTML = "";
 
-  list.slice(0, 5).forEach((m, idx) => {
+  list.slice(0, 5).forEach((m) => {
     const pct = Math.round(clamp(m.p, 0.01, 0.99) * 100);
     const el = document.createElement("div");
     el.className = "market";
@@ -145,9 +164,11 @@ function renderMarkets(list) {
     wrap.appendChild(el);
   });
 
-  // Só exige login quando clicar em YES/NO
+  // ✅ AQUI É A REGRA DE OURO:
+  // Login só é pedido quando clicar em YES/NO (negociar)
   $$(".pair button", wrap).forEach(btn => {
-    btn.addEventListener("click", ev => {
+    btn.addEventListener("click", (ev) => {
+      ev.preventDefault();
       ev.stopPropagation();
       requireAuth();
     });
@@ -184,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
   authModal = document.getElementById("authModal");
   closeAuth = document.getElementById("closeAuth");
 
-  // CANCELAR: fecha modal e volta pro topo (sempre)
+  // ✅ CANCELAR: fecha modal e volta pra página principal SEMPRE
   if (closeAuth) {
     closeAuth.addEventListener("click", (ev) => {
       ev.preventDefault();
@@ -192,14 +213,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // (opcional) clicou fora do card = comporta como Cancelar
+  // (opcional, mas bom) clicou fora do card = CANCELAR
   if (authModal) {
     authModal.addEventListener("click", (ev) => {
       if (ev.target === authModal) closeAuthModalAndBackToTop();
     });
   }
 
-  // (opcional) ESC = comporta como Cancelar
+  // (opcional, mas bom) ESC = CANCELAR
   window.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape" && authModal && !authModal.hidden) {
       closeAuthModalAndBackToTop();
@@ -209,11 +230,13 @@ document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   renderMarkets(MARKET_DATA);
 
+  // splash (mantido)
   const splash = document.getElementById("splash");
   if (splash) {
     setTimeout(() => splash.style.display = "none", 2000);
   }
 
+  // PWA (mantido)
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("service-worker.js");
   }
